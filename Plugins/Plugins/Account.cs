@@ -24,14 +24,25 @@ namespace Plugins
 
                 try
                 {
-                    List<string> websites = new List<string>() {
-                        "https://www.google.com",
-                        "https://www.bing.com",
-                        "https://duckduckgo.com",
-                        "https://yahoo.com"
+                    List<string> searchEngines = new List<string>() {
+                        "bing.com",
+                        "dogpile.com",
+                        "duckduckgo.com",
+                        "google.com",
+                        "yippy.com"
                     };
 
-                    account["websiteurl"] = websites.Skip(DateTime.Now.Second % 3).First();
+
+                    var accountName = account["name"].ToString();
+
+                    //Let's see if it there is a first letter match with any of our approved search engines.
+                    var searchEngine = searchEngines.Where(x => x.Substring(0, 1) == accountName[0].ToString()).FirstOrDefault();
+
+                    if (searchEngine != null)
+                    {
+                        account["websiteurl"] = $"https://{searchEngine}";
+                    }
+
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
