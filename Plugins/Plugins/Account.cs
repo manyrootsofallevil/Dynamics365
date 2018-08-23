@@ -23,8 +23,8 @@ namespace Plugins
                 if (account.LogicalName != "account") { return; }
 
                 try
-                {
-                    account["websiteurl"] = GetSearchEngine(account["name"].ToString());
+                {                    
+                    account["new_searchengine"] = new OptionSetValue(GetSearchEngineOptionSet(account["name"].ToString()));
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
@@ -40,28 +40,30 @@ namespace Plugins
             }
 
         }
+     
 
-        protected string GetSearchEngine(string accountName)
+        protected int GetSearchEngineOptionSet(string accountName)
         {
-            var searchEngine = string.Empty;
+            int output = 0;
 
-            List<string> searchEngines = new List<string>() {
-                        "bing.com",
-                        "dogpile.com",
-                        "duckduckgo.com",
-                        "google.com",
-                        "yippy.com"
-                    };
+            Dictionary<int, string> searchEngines = new Dictionary<int, string>();
+            searchEngines.Add(100000000, "bing.com");
+            searchEngines.Add(100000001, "dogpile.com");
+            searchEngines.Add(100000002, "duckduckgo.com");
+            searchEngines.Add(100000003, "google.com");
+            searchEngines.Add(100000004, "yippy.com");
 
             //Let's see if it there is a first letter match with any of our approved search engines.
-            searchEngine = searchEngines.Where(x => x.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString()).FirstOrDefault();
+            var searchEngine = searchEngines
+                .Where(x => x.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
+                .FirstOrDefault();
 
-            if (searchEngine != null)
+            if (!searchEngine.Equals(default(KeyValuePair<int,string>)))
             {
-                searchEngine = $"https://{searchEngine}";
+                output = searchEngine.Key;
             }
 
-            return searchEngine;
+            return output;
         }
     }
 }

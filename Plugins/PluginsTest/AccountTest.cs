@@ -7,32 +7,23 @@ namespace PluginsTest
 {
     public class AccountTest : Account
     {
-        [Test]
-        public void GetSearchEngineTestGoogle()
-        {
-            //Arrange
-            var accountName = "Guardian";
-            //Act
-            var searchEngine = GetSearchEngine(accountName);
-            //Assert
-            Assert.AreEqual("https://google.com", searchEngine);
-        }
 
-        [TestCase("Ontological", null)]
-        [TestCase("Bastion", "https://bing.com")]
-        [TestCase("bastion", "https://bing.com")]
-        [TestCase("Distress", "https://dogpile.com")]
-        [TestCase("diamon", "https://dogpile.com")]
-        [TestCase("Guardian", "https://google.com")]
-        [TestCase("guardian", "https://google.com")]
-        public void GetSearchEngineTest(string accountName, string expectedSearchEngine)
+        [TestCase("Ontological", 0)]
+        [TestCase("Bastion", 100000000)]
+        [TestCase("bastion", 100000000)]
+        [TestCase("Distress",100000001 )]
+        [TestCase("diamon", 100000001)]
+        [TestCase("Yahoo", 100000004)]
+        [TestCase("yep", 100000004)]
+        public void GetSearchEngineOptionSetTest(string accountName, int expectedSearchEngine)
         {
             //Arrange
 
             //Act
-            var searchEngine = GetSearchEngine(accountName);
+            var searchEngine = GetSearchEngineOptionSet(accountName);
             //Assert
             Assert.AreEqual(expectedSearchEngine, searchEngine);
         }
+
     }
 }
