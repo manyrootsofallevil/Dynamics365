@@ -25,7 +25,6 @@ namespace Plugins
                 try
                 {
                     account["websiteurl"] = GetSearchEngine(account["name"].ToString());
-
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
@@ -55,7 +54,7 @@ namespace Plugins
                     };
 
             //Let's see if it there is a first letter match with any of our approved search engines.
-            searchEngine = searchEngines.Where(x => x.Substring(0, 1) == accountName[0].ToString()).FirstOrDefault();
+            searchEngine = searchEngines.Where(x => x.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString()).FirstOrDefault();
 
             if (searchEngine != null)
             {
