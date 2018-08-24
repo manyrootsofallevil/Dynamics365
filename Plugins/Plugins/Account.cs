@@ -21,39 +21,36 @@ namespace Plugins
             var orgFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var orgService = orgFactory.CreateOrganizationService(context.UserId);
 
-            if (!context.InputParameters.Contains("Target") || !(context.InputParameters["Target"] is Entity)) { return; }
 
-            var account = (Entity)context.InputParameters["Target"];
 
-            if (account.LogicalName != "account") { return; }
-
-            try
+            if (context.InputParameters.Contains("Target") && context.InputParameters["Target"] is Entity)
             {
-                SearchEngineChecker searchEngineChecker = new SearchEngineChecker();
+                var account = (Entity)context.InputParameters["Target"];
 
-                var searchEngine = searchEngineChecker.GetSearchEngineOptionSet(account["name"].ToString(), orgService);
+                if (account.LogicalName != "account") { return; }
 
-                account["new_searchengine"] = new OptionSetValue(searchEngine);
+                try
+                {
+                    var searchEngines = GetSearchEngines(orgService);
+
+                    account["new_searchengine"] =
+                        new OptionSetValue(GetSearchEngineOptionSet(account["name"].ToString(), searchEngines));
+                }
+
+                catch (FaultException<OrganizationServiceFault> ex)
+                {
+                    throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
+                }
+
+                catch (Exception ex)
+                {
+                    tracingService.Trace("Account: {0}", ex);
+                    throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
+                }
             }
-
-            catch (FaultException<OrganizationServiceFault> ex)
-            {
-                throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
-            }
-
-            catch (Exception ex)
-            {
-                tracingService.Trace("Account: {0}", ex);
-                throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
-            }
-
 
         }
-    }
 
-
-    public class SearchEngineChecker
-    {
         protected Dictionary<int, string> GetSearchEngines(IOrganizationService orgService)
         {
             var options = new Dictionary<int, string>();
@@ -74,20 +71,28 @@ namespace Plugins
                    Value = option.Value.HasValue ? (int)option.Value : 0,
                    Text = option.Label.UserLocalizedLabel.Label
                })
-               .ToDictionary(opt => opt.Value, opt => opt.Text);
+               .ToDictionary(x => x.Value, x => x.Text);
 
             return options;
         }
 
-        public int GetSearchEngineOptionSet(string accountName, IOrganizationService orgService)
+        protected int GetSearchEngineOptionSet(string accountName, Dictionary<int, string> searchEngines)
         {
             int output = 0;
 
-            Dictionary<int, string> searchEngines = GetSearchEngines(orgService);
+
+
+
+            //Dictionary<int, string> searchEngines = new Dictionary<int, string>();
+            //searchEngines.Add(100000000, "bing.com");
+            //searchEngines.Add(100000001, "dogpile.com");
+            //searchEngines.Add(100000002, "duckduckgo.com");
+            //searchEngines.Add(100000003, "google.com");
+            //searchEngines.Add(100000004, "yippy.com");
 
             //Let's see if it there is a first letter match with any of our approved search engines.
             var searchEngine = searchEngines
-                .Where(se => se.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
+                .Where(x => x.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
                 .FirstOrDefault();
 
             if (!searchEngine.Equals(default(KeyValuePair<int, string>)))
@@ -97,6 +102,5 @@ namespace Plugins
 
             return output;
         }
-
     }
 }
