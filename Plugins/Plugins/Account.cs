@@ -21,33 +21,31 @@ namespace Plugins
             var orgFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var orgService = orgFactory.CreateOrganizationService(context.UserId);
 
+            if (!context.InputParameters.Contains("Target") || !(context.InputParameters["Target"] is Entity)) { return; }            
 
+            var account = (Entity)context.InputParameters["Target"];
 
-            if (context.InputParameters.Contains("Target") && context.InputParameters["Target"] is Entity)
+            if (account.LogicalName != "account") { return; }
+
+            try
             {
-                var account = (Entity)context.InputParameters["Target"];
+                var searchEngines = GetSearchEngines(orgService);
 
-                if (account.LogicalName != "account") { return; }
-
-                try
-                {
-                    var searchEngines = GetSearchEngines(orgService);
-
-                    account["new_searchengine"] =
-                        new OptionSetValue(GetSearchEngineOptionSet(account["name"].ToString(), searchEngines));
-                }
-
-                catch (FaultException<OrganizationServiceFault> ex)
-                {
-                    throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
-                }
-
-                catch (Exception ex)
-                {
-                    tracingService.Trace("Account: {0}", ex);
-                    throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
-                }
+                account["new_searchengine"] =
+                    new OptionSetValue(GetSearchEngineOptionSet(account["name"].ToString(), searchEngines));
             }
+
+            catch (FaultException<OrganizationServiceFault> ex)
+            {
+                throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
+            }
+
+            catch (Exception ex)
+            {
+                tracingService.Trace("Account: {0}", ex);
+                throw new InvalidPluginExecutionException("An error occurred in Account Plug-in.", ex);
+            }
+
 
         }
 
@@ -71,7 +69,7 @@ namespace Plugins
                    Value = option.Value.HasValue ? (int)option.Value : 0,
                    Text = option.Label.UserLocalizedLabel.Label
                })
-               .ToDictionary(x => x.Value, x => x.Text);
+               .ToDictionary(opt => opt.Value, opt => opt.Text);
 
             return options;
         }
@@ -80,19 +78,9 @@ namespace Plugins
         {
             int output = 0;
 
-
-
-
-            //Dictionary<int, string> searchEngines = new Dictionary<int, string>();
-            //searchEngines.Add(100000000, "bing.com");
-            //searchEngines.Add(100000001, "dogpile.com");
-            //searchEngines.Add(100000002, "duckduckgo.com");
-            //searchEngines.Add(100000003, "google.com");
-            //searchEngines.Add(100000004, "yippy.com");
-
             //Let's see if it there is a first letter match with any of our approved search engines.
             var searchEngine = searchEngines
-                .Where(x => x.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
+                .Where(se => se.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
                 .FirstOrDefault();
 
             if (!searchEngine.Equals(default(KeyValuePair<int, string>)))
