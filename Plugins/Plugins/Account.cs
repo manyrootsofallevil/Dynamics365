@@ -21,7 +21,7 @@ namespace Plugins
             var orgFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var orgService = orgFactory.CreateOrganizationService(context.UserId);
 
-            if (!context.InputParameters.Contains("Target") || !(context.InputParameters["Target"] is Entity)) { return; }            
+            if (!context.InputParameters.Contains("Target") || !(context.InputParameters["Target"] is Entity)) { return; }
 
             var account = (Entity)context.InputParameters["Target"];
 
@@ -29,10 +29,11 @@ namespace Plugins
 
             try
             {
-                var searchEngines = GetSearchEngines(orgService);
+                SearchEngineChecker searchEngineChecker = new SearchEngineChecker();
 
-                account["new_searchengine"] =
-                    new OptionSetValue(GetSearchEngineOptionSet(account["name"].ToString(), searchEngines));
+                var searchEngine = searchEngineChecker.GetSearchEngineOptionSet(account["name"].ToString(), orgService);
+
+                account["new_searchengine"] = new OptionSetValue(searchEngine);
             }
 
             catch (FaultException<OrganizationServiceFault> ex)
@@ -48,7 +49,11 @@ namespace Plugins
 
 
         }
+    }
 
+
+    public class SearchEngineChecker
+    {
         protected Dictionary<int, string> GetSearchEngines(IOrganizationService orgService)
         {
             var options = new Dictionary<int, string>();
@@ -74,9 +79,11 @@ namespace Plugins
             return options;
         }
 
-        protected int GetSearchEngineOptionSet(string accountName, Dictionary<int, string> searchEngines)
+        public int GetSearchEngineOptionSet(string accountName, IOrganizationService orgService)
         {
             int output = 0;
+
+            Dictionary<int, string> searchEngines = GetSearchEngines(orgService);
 
             //Let's see if it there is a first letter match with any of our approved search engines.
             var searchEngine = searchEngines
@@ -90,5 +97,6 @@ namespace Plugins
 
             return output;
         }
+
     }
 }

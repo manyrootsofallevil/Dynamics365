@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Moq;
 using NUnit.Framework;
 using Plugins;
 
 namespace PluginsTest
 {
-    public class AccountTest : Account
+    public class AccountTest
     {
 
         [TestCase("Ontological", 0)]
@@ -17,17 +20,16 @@ namespace PluginsTest
         public void GetSearchEngineOptionSetTest(string accountName, int expectedSearchEngine)
         {
             //Arrange
-            var searchEngines = new Dictionary<int, string>()
-            {
-                {100000000, "bing.com"},
-                {100000001, "dogpile.com"},
-                {100000002, "duckduckgo.com"},
-                {100000003, "google.com"},
-                {100000004, "yippy.com"},
-            };
+
+            Mock<IOrganizationService> orgService = new Mock<IOrganizationService>();
+
+            orgService.Setup(org => org.Execute(new RetrieveAttributeRequest()))
+                .Returns(new RetrieveAttributeResponse() { Results = new ParameterCollection() });
+            
+            SearchEngineChecker sut = new SearchEngineChecker();
 
             //Act
-            var searchEngine = GetSearchEngineOptionSet(accountName, searchEngines);
+            var searchEngine = sut.GetSearchEngineOptionSet(accountName, orgService.Object);
             //Assert
             Assert.AreEqual(expectedSearchEngine, searchEngine);
         }
