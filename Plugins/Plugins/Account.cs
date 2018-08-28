@@ -28,7 +28,8 @@ namespace Plugins
 
                 try
                 {
-                  account["new_searchengineid"] = GetSearchEngine(orgService, account["name"].ToString()); 
+                    var accountName = account["name"].ToString();
+                    account["new_searchengineid"] = GetCorrespondantSearchEngine(GetSearchEngines(orgService, accountName), accountName);
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
@@ -45,22 +46,9 @@ namespace Plugins
 
         }
 
-        private EntityReference GetSearchEngine(IOrganizationService service, string accountName)
+        protected EntityReference GetCorrespondantSearchEngine(List<Entity> searchEngines, string accountName)
         {
             EntityReference output = null;
-
-            var query = $@"<fetch version='1.0'  mapping='logical' distinct='true'>
-  <entity name='new_searchengine'>
-    <attribute name='new_searchengineid' />
-    <attribute name='new_name' />  
-    <order attribute='new_name' descending='false' />
-    <filter type='and'>
-      <condition attribute='new_name' operator='like' value = '{accountName[0]}%' />
-    </filter>
-  </entity>
-</fetch>";
-
-            var searchEngines = service.RetrieveMultiple(new FetchExpression(query))?.Entities;        
 
             var searchEngine = searchEngines
                .Where(se => se["new_name"].ToString().ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
@@ -72,8 +60,22 @@ namespace Plugins
             }
 
             return output;
+        }
 
+        private List<Entity> GetSearchEngines(IOrganizationService service, string accountName)
+        {            
+            var query = $@"<fetch version='1.0'  mapping='logical' distinct='true'>
+  <entity name='new_searchengine'>
+    <attribute name='new_searchengineid' />
+    <attribute name='new_name' />  
+    <order attribute='new_name' descending='false' />
+    <filter type='and'>
+      <condition attribute='new_name' operator='like' value = '{accountName[0]}%' />
+    </filter>
+  </entity>
+</fetch>";
 
-        }     
+            return service.RetrieveMultiple(new FetchExpression(query))?.Entities.ToList();
+        }
     }
 }
