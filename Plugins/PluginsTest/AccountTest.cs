@@ -20,7 +20,7 @@ namespace PluginsTest
             //Arrange
 
             //Act
-            var searchEngine = GetSearchEngineOptionSet(accountName);
+            
             //Assert
             Assert.AreEqual(expectedSearchEngine, searchEngine);
         }

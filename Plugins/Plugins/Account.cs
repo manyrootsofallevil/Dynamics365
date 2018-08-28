@@ -28,9 +28,7 @@ namespace Plugins
 
                 try
                 {
-                    var searchEngine = GetSearchEngine(account["name"].ToString(), orgService, tracingService);
-
-                    if (searchEngine != null) { account["new_searchengineid"] = searchEngine; }
+                  account["new_searchengineid"] = GetSearchEngine(orgService, account["name"].ToString()); 
                 }
 
                 catch (FaultException<OrganizationServiceFault> ex)
@@ -47,7 +45,7 @@ namespace Plugins
 
         }
 
-        private EntityReference GetSearchEngine(string accountName, IOrganizationService service)
+        private EntityReference GetSearchEngine(IOrganizationService service, string accountName)
         {
             EntityReference output = null;
 
@@ -62,7 +60,6 @@ namespace Plugins
   </entity>
 </fetch>";
 
-          
             var searchEngines = service.RetrieveMultiple(new FetchExpression(query))?.Entities;        
 
             var searchEngine = searchEngines
@@ -77,31 +74,6 @@ namespace Plugins
             return output;
 
 
-        }
-
-
-        protected int GetSearchEngineOptionSet(string accountName)
-        {
-            int output = 0;
-
-            Dictionary<int, string> searchEngines = new Dictionary<int, string>();
-            searchEngines.Add(100000000, "bing.com");
-            searchEngines.Add(100000001, "dogpile.com");
-            searchEngines.Add(100000002, "duckduckgo.com");
-            searchEngines.Add(100000003, "google.com");
-            searchEngines.Add(100000004, "yippy.com");
-
-            //Let's see if it there is a first letter match with any of our approved search engines.
-            var searchEngine = searchEngines
-                .Where(x => x.Value.ToLower().Substring(0, 1) == accountName.ToLower()[0].ToString())
-                .FirstOrDefault();
-
-            if (!searchEngine.Equals(default(KeyValuePair<int, string>)))
-            {
-                output = searchEngine.Key;
-            }
-
-            return output;
-        }
+        }     
     }
 }
