@@ -2,34 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using Moq;
 using NUnit.Framework;
 using Plugins;
 
 namespace PluginsTest
 {
-    public class AccountTest
+    public class AccountTest : Account
     {
-        static object[] engineCases =
-        {
-            new object[] { "Ontological", null },
-            new object[] { "Bastion", "Bing", Guid.NewGuid() },
-        };
 
         [TestCase("Ontological", null)]
         [TestCase("Bastion", "Bing")]
         [TestCase("bastion", "Bing")]
         [TestCase("Giga", "Google")]
-        [TestCase("giga", "Google")]
-        //[TestCaseSource("engineCases")]
+        [TestCase("giga", "Google")]        
         public void GetCorrespondantSearchEngineTest(string accountName, string expectedSearchEngineName)
         {
             //Arrange
 
-            var mockSearchEngineRetriever = new Mock<ISearchEngineRetriever>();
-            mockSearchEngineRetriever.Setup(x => x.GetSearchEngines(accountName)).Returns(
-
-new List<Entity>() {
+            var searchEngineCollection = new List<Entity>() {
                 new Entity("new_searchengine",Guid.NewGuid())
                 {
                     Attributes = new AttributeCollection()
@@ -47,14 +37,13 @@ new List<Entity>() {
                     }
                 }
 
-            });
-
-            var searchEngineFinder = new SearchEngineFinder(mockSearchEngineRetriever.Object);
+            };
 
             //Act
-            var searchEngine = searchEngineFinder.GetCorrespondantSearchEngine(accountName);
 
-            var searchEngineName = mockSearchEngineRetriever.Object.GetSearchEngines(accountName)
+            var searchEngine = GetCorrespondantSearchEngine(searchEngineCollection, accountName);
+
+            var searchEngineName = searchEngineCollection
                 .Where(se => se["new_searchengineid"].Equals(searchEngine?.Id))
                 .SingleOrDefault()?["new_name"].ToString();
 
