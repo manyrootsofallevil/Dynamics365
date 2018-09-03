@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /PackageDeployer
+/Plugins/WebResources/Account/account.js.map
+/Plugins/WebResources/Account/account.js

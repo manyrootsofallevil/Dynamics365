@@ -1,0 +1,8 @@
+<entities >
+  <entity name="new_searchengine" displayname="Search Engine" etc="10022" primaryidfield="new_searchengineid" primarynamefield="new_name" disableplugins="false">
+    <fields>
+      <field displayname="Name" name="new_name" type="string" customfield="true" />
+      <field displayname="URL" name="new_url" type="string" customfield="true" />
+    </fields>
+  </entity>
+</entities>
