@@ -8,7 +8,12 @@ namespace webresources {
 
             var context = Xrm.Utility.getGlobalContext();
 
-            alert("Greetings User");
+            alert("Greetings " + context.getUserName());
         }
+
+        static setCreditLimit(formContext: Xrm.FormContext) {
+         
+            Xrm.Page.getAttribute("creditlimit").setValue(10000);
     }
+}
 }
