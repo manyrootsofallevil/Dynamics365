@@ -1,0 +1,20 @@
+17:19:44	Deploying WebResources
+17:19:44	Using Config 'C:\Checkout\Dynamics365\Plugins\WebResources'
+17:21:31	Deploying WebResources
+17:21:32	Using Config 'C:\Checkout\Dynamics365\Plugins\WebResources'
+17:21:34	Creating Webresource 'bib_\account\account.js' -> 'bib_/account/somefile.js'
+17:21:37	Adding to solution 'Plugins'
+17:21:37	Deployed 1 webresource(s)
+17:21:37	Publishing 1 webresources...
+17:21:41	Publish complete.
+17:21:41	Processed 1 section(s)
+17:21:41	Processed 1 config(s)
+17:23:35	Deploying WebResources
+17:23:35	Using Config 'C:\Checkout\Dynamics365\Plugins\WebResources'
+17:23:38	Creating Webresource 'bib_\account\account.js' -> 'bib_/account/account.js'
+17:23:42	Adding to solution 'Plugins'
+17:23:43	Deployed 1 webresource(s)
+17:23:43	Publishing 1 webresources...
+17:23:49	Publish complete.
+17:23:49	Processed 1 section(s)
+17:23:49	Processed 1 config(s)

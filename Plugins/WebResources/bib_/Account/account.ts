@@ -1,4 +1,5 @@
-﻿/// <reference path="../node_modules/@types/xrm/index.d.ts" />
+﻿/// <reference path="../../node_modules/@types/xrm/index.d.ts" />
+
 
 namespace webresources {
 
@@ -8,7 +9,7 @@ namespace webresources {
 
             var context = Xrm.Utility.getGlobalContext();
 
-            alert("Greetings " + context.getUserName());
+            alert("Greetings " + context.getUserName() + " Good Day?");
         }
 
         static setCreditLimit(formContext: Xrm.FormContext) {
